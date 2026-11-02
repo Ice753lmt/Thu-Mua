@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#14532d">
+  <meta name="description" content="Ứng dụng quản lý thu mua và hóa đơn">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./assets/icon-192.png">
+  <link rel="stylesheet" href="./style.css">
+  <title>Thu Mua - Quản lý hóa đơn</title>
+</head>
+<body>
+  <div id="authView" class="auth-shell">
+    <section class="auth-card">
+      <div class="brand-mark">TM</div>
+      <p class="eyebrow">QUẢN LÝ THU MUA</p>
+      <h1>Chào mừng trở lại</h1>
+      <p class="muted">Đăng nhập để quản lý hóa đơn và thông tin thu mua.</p>
+      <form id="adminLogin" class="stack">
+        <label>Email quản trị<input id="adminEmail" type="email" autocomplete="username" placeholder="admin@example.com" required></label>
+        <label>Mật khẩu<input id="adminPassword" type="password" autocomplete="current-password" required></label>
+        <button class="btn primary" type="submit">Đăng nhập Admin</button>
+      </form>
+      <div class="or"><span>hoặc</span></div>
+      <button id="googleLogin" class="btn google" type="button"><span class="google-g">G</span> Tiếp tục với Google</button>
+      <p class="tiny muted">Khách hàng đăng nhập bằng tài khoản Google. Admin sử dụng email và mật khẩu đã tạo trong Supabase.</p>
+      <p id="authMessage" class="message" role="status"></p>
+    </section>
+  </div>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="side-brand"><div class="brand-mark small">TM</div><div><b id="sideStoreName">Thu Mua</b><small>QUẢN LÝ THU MUA</small></div></div>
+      <nav class="side-nav">
+        <button data-page="notifications" class="nav-item active">◉ <span>Thông báo</span></button>
+        <button data-page="invoices" class="nav-item">▤ <span>Hóa đơn</span></button>
+        <button data-page="account" class="nav-item">♙ <span>Tài khoản</span></button>
+        <button data-page="settings" class="nav-item">⚙ <span>Cài đặt</span></button>
+      </nav>
+      <div class="side-user"><div id="sideAvatar" class="avatar">U</div><div class="user-meta"><b id="sideName">Người dùng</b><small id="sideRole">Khách hàng</small></div><button id="logoutBtn" class="icon-btn" title="Đăng xuất">↪</button></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow" id="pageEyebrow">TỔNG QUAN</p><h1 id="pageTitle">Thông báo</h1></div><div class="top-actions"><span id="todayLabel" class="muted"></span><button id="installBtn" class="btn outline hidden">Cài ứng dụng</button></div></header>
+      <section id="pageContent" class="page-content"></section>
+    </main>
+    <nav class="mobile-nav">
+      <button data-page="notifications" class="active"><span>◉</span>Thông báo</button>
+      <button data-page="invoices"><span>▤</span>Hóa đơn</button>
+      <button data-page="account"><span>♙</span>Tài khoản</button>
+      <button data-page="settings"><span>⚙</span>Cài đặt</button>
+    </nav>
+  </div>
+
+  <dialog id="invoiceDialog" class="modal wide">
+    <form id="invoiceForm" method="dialog">
+      <div class="modal-head"><div><p class="eyebrow">QUẢN LÝ THU MUA</p><h2>Tạo hóa đơn thu mua</h2></div><button type="button" class="icon-btn" data-close="invoiceDialog">✕</button></div>
+      <div class="form-grid">
+        <label>Khách hàng<select id="invoiceCustomer" required></select></label>
+        <label>Ngày lập<input id="invoiceDate" type="date" required></label>
+      </div>
+      <div id="customerPhone" class="muted small-note">Số điện thoại khách hàng: —</div>
+      <div class="table-wrap"><table class="items-table"><thead><tr><th>STT</th><th>Loại hàng</th><th>Số lượng</th><th>Đơn giá (₫)</th><th>Thành tiền (₫)</th><th></th></tr></thead><tbody id="invoiceLines"></tbody></table></div>
+      <button type="button" id="addLineBtn" class="btn outline compact">＋ Thêm dòng hàng</button>
+      <div class="invoice-total"><span>Tổng tiền hóa đơn</span><strong id="invoiceTotal">0 ₫</strong></div>
+      <label>Ghi chú<textarea id="invoiceNote" rows="2" placeholder="Ghi chú thêm (không bắt buộc)"></textarea></label>
+      <div class="modal-actions"><button type="button" class="btn outline" data-close="invoiceDialog">Hủy</button><button type="submit" class="btn primary">Lưu hóa đơn</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="detailDialog" class="modal wide">
+    <div class="modal-head"><div><p class="eyebrow">CHI TIẾT</p><h2>Hóa đơn</h2></div><button class="icon-btn" data-close="detailDialog">✕</button></div>
+    <div id="invoiceDetail"></div>
+    <div class="modal-actions wrap-actions"><button id="exportTextBtn" class="btn outline">Xuất Note</button><button id="exportXlsxBtn" class="btn outline">Xuất Excel</button><button id="exportPdfBtn" class="btn primary">Xuất PDF / In</button></div>
+  </dialog>
+
+  <dialog id="userDialog" class="modal">
+    <form id="userForm" method="dialog">
+      <div class="modal-head"><h2>Chỉnh sửa khách hàng</h2><button type="button" class="icon-btn" data-close="userDialog">✕</button></div>
+      <input id="editUserId" type="hidden">
+      <label>Họ và tên<input id="editUserName" required></label>
+      <label>Số điện thoại<input id="editUserPhone" type="tel"></label>
+      <label>Năm sinh<input id="editUserYear" type="number" min="1900" max="2100"></label>
+      <div class="modal-actions"><button type="button" class="btn outline" data-close="userDialog">Hủy</button><button class="btn primary" type="submit">Lưu</button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

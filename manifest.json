@@ -1,0 +1,22 @@
+{
+  "name": "Thu Mua - Quản lý thu mua",
+  "short_name": "Thu Mua",
+  "description": "Quản lý khách hàng, thông báo và hóa đơn thu mua",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f8f5",
+  "theme_color": "#14532d",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
